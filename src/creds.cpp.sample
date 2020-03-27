@@ -1,0 +1,11 @@
+#include "creds.h"
+
+/*
+  Rename this file to creds.cpp with a list of hardcoded wifi password
+ */
+
+extern const Creds creds[] = {
+  {"patate", "poil"},
+};
+
+extern const int CredsCount = sizeof(creds) / sizeof(Creds);
