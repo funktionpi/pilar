@@ -28,17 +28,18 @@ void changefx()
   }
 }
 
-void led_setup()
+bool led_setup()
 {
   Serial.println(F("[LED] setting up FastLED"));
-  pinMode(LED_PIN, OUTPUT);
+  pinMode(LED_PIN1, OUTPUT);
+  pinMode(LED_PIN2, OUTPUT);
 
-  FastLED.addLeds<WS2812B, LED_PIN, GRB>(leds, 0, LED_COUNT_PER_STRIP);
-  FastLED.addLeds<WS2812B, LED_PIN+1, GRB>(leds, LED_COUNT_PER_STRIP, LED_COUNT_PER_STRIP);
+  FastLED.addLeds<WS2812B, LED_PIN1, GRB>(leds, 0, LED_COUNT_PER_STRIP);
+  FastLED.addLeds<WS2812B, LED_PIN2, GRB>(leds, LED_COUNT_PER_STRIP, LED_COUNT_PER_STRIP);
   FastLED.setCorrection(TypicalSMD5050);
-  FastLED.setMaxPowerInVoltsAndMilliamps(5, 16 * 1000);
+  // FastLED.setMaxPowerInVoltsAndMilliamps(5, 12 * 1000);
   FastLED.setMaxRefreshRate(60, false);
-  FastLED.setBrightness(32);
+  FastLED.setBrightness(255);
   FastLED.clear();
 
   FX::setLeds(leds, LED_COUNT);
@@ -46,8 +47,10 @@ void led_setup()
   FxRegistry.printRegistered();
 
   random16_add_entropy(millis()); // add random
-  // changefx();
-  FxRegistry.select("fire2012");
+  changefx();
+  // FxRegistry.select("fire2012");
+
+  return true;
 }
 
 void led_loop()

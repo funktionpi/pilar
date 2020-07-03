@@ -36,9 +36,12 @@ void Cylon::loop()
     leds[count + current] = CHSV(hue++, 255, 255);
     fadeall();
 
-    if (current == count - 1) {
+    if (current == count - 1)
+    {
       goingLeft = false;
-    } else {
+    }
+    else
+    {
       current++;
     }
   }
@@ -51,7 +54,8 @@ void Cylon::loop()
 
     current--;
 
-    if (current == 0) {
+    if (current == 0)
+    {
       goingLeft = true;
     }
   }

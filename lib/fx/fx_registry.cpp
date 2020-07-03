@@ -20,7 +20,7 @@ void CFxRegistry::registerFX(FX *fx)
 
 FX *CFxRegistry::random()
 {
-  return select(random8(count - 1));
+  return select(random8(count));
 }
 
 FX *CFxRegistry::select(int id)

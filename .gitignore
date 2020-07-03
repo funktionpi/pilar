@@ -17,3 +17,8 @@ src/creds.cpp
 
 # Dependency directories (remove the comment below to include it)
 vendor/
+cmake-build-*
+.tmp/
+CMakeListsPrivate.txt
+
+.idea/

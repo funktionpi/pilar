@@ -1,23 +1,26 @@
 #include <Arduino.h>
-#include <ESP8266WiFi.h>
-#include <CoopTask.h>
+#include "Tasks.h"
+// #include <ESP8266WiFi.h>
 
 void dns_setup();
 void nats_setup();
 void muthur_loop();
 void nats_loop();
-void network_setup();
-void network_loop();
-void led_setup();
+void network_init();
+bool led_setup();
 void led_loop();
-bool network_connected();
+void artnet_setup();
+void artnet_loop();
 
+void ledCallback();
+void wifiCallback();
+void networkCallback();
 
-int led_task();
-int wifi_task();
+Scheduler ts;
 
-CoopTask<> *ledTask;
-CoopTask<> *wifiTask;
+Task tLed(TASK_IMMEDIATE, TASK_FOREVER, &led_loop, &ts);
+extern Task tNetwork;
+extern Task tConnect;
 
 void setup()
 {
@@ -29,42 +32,15 @@ void setup()
   Serial.println();
   Serial.println(F("[MAIN] starting pilar"));
 
-  ledTask = createCoopTask(F("led"), led_task);
-  wifiTask = createCoopTask(F("wifi"), wifi_task);
+  ts.addTask(tConnect);
+  ts.addTask(tNetwork);
+
+  led_setup();
+  network_init();
+  tLed.enable();
 }
 
 void loop()
 {
-  runCoopTasks();
-}
-
-int wifi_task()
-{
-  for (;;)
-  {
-    if (!network_connected())
-    {
-      led_setup();
-      network_setup();
-      dns_setup();
-      nats_setup();
-    }
-    else
-    {
-      network_loop();
-      muthur_loop();
-      nats_loop();
-    }
-  }
-  return 0;
-}
-
-int led_task()
-{
-  for(;;)
-  {
-    led_loop();
-    yield();
-  }
-  return 0;
+  ts.execute();
 }
