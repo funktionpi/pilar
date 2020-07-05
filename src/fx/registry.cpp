@@ -1,8 +1,10 @@
-#include <fx_registry.h>
 #include <Arduino.h>
 #include <FastLED.h>
+#include "fx/registry.h"
 
 CFxRegistry FxRegistry;
+
+#pragma GCC diagnostic ignored "-Wsign-compare"
 
 using std::string;
 
@@ -13,6 +15,10 @@ CFxRegistry::CFxRegistry()
 
 void CFxRegistry::registerFX(FX *fx)
 {
+  // Serial.print(F("[FX] registering "));
+  // Serial.print(fx->name());
+  // Serial.println();
+
   fxmap[fx->name()] = fx;
   fxes[count] = fx;
   count++;
@@ -63,7 +69,7 @@ void CFxRegistry::loop()
 
 void CFxRegistry::printRegistered()
 {
-  Serial.println("[FX] List of registered FXs:");
+  Serial.println(F("[FX] List of registered FXs:"));
   int i = 0;
   for (auto it : fxes)
   {

@@ -1,6 +1,7 @@
-#include <pacifica.h>
+#include <fx/pacifica.h>
 #include <FastLED.h>
-#include <fx_registry.h>
+#include <fx/registry.h>
+#include "display.h"
 
 Pacifica::Pacifica()
 {
@@ -17,7 +18,7 @@ Pacifica::Pacifica()
 // Add one layer of waves into the led array
 void pacifica_one_layer(CRGBPalette16 &p, uint16_t cistart, uint16_t wavescale, uint8_t bri, uint16_t ioff)
 {
-  auto count = FX::ledCount/2;
+  auto count = Display.count();
 
   uint16_t ci = cistart;
   uint16_t waveangle = ioff;
@@ -33,15 +34,15 @@ void pacifica_one_layer(CRGBPalette16 &p, uint16_t cistart, uint16_t wavescale, 
     uint8_t sindex8 = scale16(sindex16, 240);
     CRGB c = ColorFromPalette(p, sindex8, bri, LINEARBLEND);
 
-    FX::leds[i] += c;
-    FX::leds[i+count] += c;
+    Display.pixel(i) += c;
   }
 }
 
 // Add extra 'white' to areas where the four layers of light have lined up brightly
 void pacifica_add_whitecaps()
 {
-  auto count = FX::ledCount/2;
+  auto count = Display.count();
+
   uint8_t basethreshold = beatsin8(9, 55, 65);
   uint8_t wave = beat8(7);
 
@@ -49,15 +50,14 @@ void pacifica_add_whitecaps()
   {
     uint8_t threshold = scale8(sin8(wave), 20) + basethreshold;
     wave += 7;
-    uint8_t l = FX::leds[i].getAverageLight();
+    uint8_t l = Display.pixel(i).getAverageLight();
 
     if (l > threshold)
     {
       uint8_t overage = l - threshold;
       uint8_t overage2 = qadd8(overage, overage);
 
-      FX::leds[i] += CRGB(overage, overage2, qadd8(overage2, overage2));
-      FX::leds[i+count] += CRGB(overage, overage2, qadd8(overage2, overage2));
+      Display.pixel(i) += CRGB(overage, overage2, qadd8(overage2, overage2));
     }
   }
 }
@@ -65,16 +65,13 @@ void pacifica_add_whitecaps()
 // Deepen the blues and greens
 void pacifica_deepen_colors()
 {
-  auto count = FX::ledCount / 2;
+  auto count = Display.count();
+
   for (uint16_t i = 0; i < count; i++)
   {
-    FX::leds[i].blue = scale8(FX::leds[i].blue, 145);
-    FX::leds[i].green = scale8(FX::leds[i].green, 200);
-    FX::leds[i] |= CRGB(2, 5, 7);
-
-    FX::leds[i+count].blue = scale8(FX::leds[i].blue, 145);
-    FX::leds[i+count].green = scale8(FX::leds[i].green, 200);
-    FX::leds[i+count] |= CRGB(2, 5, 7);
+    Display.pixel(i).blue = scale8(Display.pixel(i).blue, 145);
+    Display.pixel(i).green = scale8(Display.pixel(i).green, 200);
+    Display.pixel(i) |= CRGB(2, 5, 7);
   }
 }
 
@@ -133,7 +130,7 @@ void Pacifica::loop()
   sCIStart4 -= (deltams2 * beatsin88(257, 4, 6));
 
   // Clear out the LED array to a dim background blue-green
-  fill_solid(leds, FX::ledCount, CRGB(2, 6, 10));
+  fill_solid(Display.raw(), Display.count(), CRGB(2, 6, 10));
 
   // Render each of four layers, with different scales and speeds, that vary over time
   pacifica_one_layer(pacifica_palette_1, sCIStart1, beatsin16(3, 11 * 256, 14 * 256), beatsin8(10, 70, 130), 0 - beat16(301));

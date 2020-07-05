@@ -53,22 +53,22 @@ void printEncryptionType(int thisType)
   switch (thisType)
   {
   case ENC_TYPE_WEP:
-    Serial.print("WEP");
+    Serial.print(F("WEP"));
     break;
   case ENC_TYPE_TKIP:
-    Serial.print("WPA");
+    Serial.print(F("WPA"));
     break;
   case ENC_TYPE_CCMP:
-    Serial.print("WPA2");
+    Serial.print(F("WPA2"));
     break;
   case ENC_TYPE_NONE:
-    Serial.print("None");
+    Serial.print(F("None"));
     break;
   case ENC_TYPE_AUTO:
-    Serial.print("Auto");
+    Serial.print(F("Auto"));
     break;
   default:
-    Serial.print("Unknown");
+    Serial.print(F("Unknown"));
     break;
   }
 }
@@ -76,17 +76,17 @@ void printEncryptionType(int thisType)
 void listNetworks()
 {
   // scan for nearby networks:
-  Serial.println("[WIFI] ** Scan Networks **");
+  Serial.println(F("[WIFI] ** Scan Networks **"));
   int numSsid = WiFi.scanNetworks();
   if (numSsid == -1)
   {
-    Serial.println("[WIFI] ouldn't get a WiFi connection");
+    Serial.println(F("[WIFI] ouldn't get a WiFi connection"));
     while (true)
       ;
   }
 
   // print the list of networks seen:
-  Serial.print("[WIFI] number of available networks: ");
+  Serial.print(F("[WIFI] number of available networks: "));
   Serial.println(numSsid);
 
   // print the network number and name for each network found:

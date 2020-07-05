@@ -22,7 +22,7 @@ void dns_setup()
   for (uint32_t u = 0; u < u32AnswerCount; ++u)
   {
     const char *pHostname = MDNS.answerHostname(u);
-    Serial.print("[MDNS] MUTHUR found! Host: ");
+    Serial.print(F("[MDNS] MUTHUR found! Host: "));
     Serial.print(pHostname);
     auto ip = MDNS.answerIP(u);
     auto port = MDNS.answerPort(u);
@@ -44,7 +44,7 @@ void dns_setup()
       Serial.println(ipstr);
       strcpy(natsHostname, ipstr.c_str());
       nats = new NATS(&natsWifi, natsHostname, port);
-      nats->on_connect = []() 
+      nats->on_connect = []()
       {
         Serial.println(F("[NATS] connected to MUTHUR."));
       };
@@ -64,12 +64,12 @@ void dns_setup()
 
 void nats_setup()
 {
-  if (nats) 
+  if (nats)
   {
     nats->connect();
   }
 
-  // if (nats) 
+  // if (nats)
   // {
   //   Serial.println("[NATS] connecting to MUTHUR... ");
   //   while (!nats->connect())
@@ -78,7 +78,7 @@ void nats_setup()
   //     Serial.print("[NATS] wifi status: ");
   //     Serial.print(natsWifi.status());
   //     Serial.println();
-      
+
   //     delay(2500);
   //   }
   // }
@@ -86,7 +86,7 @@ void nats_setup()
 
 void nats_loop()
 {
-  if (nats) 
+  if (nats)
   {
     nats->process();
   }

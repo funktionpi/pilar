@@ -1,6 +1,7 @@
-#include <cylon.h>
 #include <FastLED.h>
-#include <fx_registry.h>
+#include "display.h"
+#include "fx/cylon.h"
+#include "fx/registry.h"
 
 Cylon::Cylon()
 {
@@ -13,9 +14,9 @@ Cylon::~Cylon()
 
 void Cylon::fadeall()
 {
-  for (int i = 0; i < ledCount; i++)
+  for (int i = 0; i < Display.count(); i++)
   {
-    leds[i].nscale8(250);
+    Display.pixel(i).nscale8(235);
   }
 }
 
@@ -27,14 +28,13 @@ void Cylon::setup()
 
 void Cylon::loop()
 {
-  auto count = ledCount / 2;
+  auto count = Display.count();
   static uint8_t hue = 0;
 
   if (goingLeft)
   {
-    leds[current] = CHSV(hue++, 255, 255);
-    leds[count + current] = CHSV(hue++, 255, 255);
     fadeall();
+    Display.pixel(current) = CHSV(hue++, 255, 255);
 
     if (current == count - 1)
     {
@@ -47,10 +47,8 @@ void Cylon::loop()
   }
   else
   {
-    // Set the i'th led to red
-    leds[current] = CHSV(hue++, 255, 255);
-    leds[count + current] = CHSV(hue++, 255, 255);
     fadeall();
+    Display.pixel(current) = CHSV(hue++, 255, 255);
 
     current--;
 

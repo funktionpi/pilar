@@ -1,8 +1,7 @@
-#include <fire2012.h>
+#include <fx/fire2012.h>
 #include <FastLED.h>
-#include <fx_registry.h>
-
-bool gReverseDirection = false;
+#include <fx/registry.h>
+#include "display.h"
 
 // Fire2012 by Mark Kriegsman, July 2012
 // as part of "Five Elements" shown here: http://youtu.be/knWiGsmgycY
@@ -45,6 +44,7 @@ bool gReverseDirection = false;
 Fire2012::Fire2012()
 {
   FxRegistry.registerFX(this);
+  _heat = new byte[Display.maxCount()];
 }
 
 Fire2012::~Fire2012()
@@ -54,17 +54,12 @@ Fire2012::~Fire2012()
 
 void Fire2012::setup()
 {
-  if (!_heat)
-  {
-    _heat = new byte[ledCount/2];
-  }
   random16_add_entropy(millis());
 }
 
 void Fire2012::loop()
 {
-  auto count = ledCount / 2;
-
+  auto count = Display.count();
   // Add entropy to random number generator; we use a lot of it.
 
   // Step 1.  Cool down every cell a little
@@ -89,18 +84,6 @@ void Fire2012::loop()
   // Step 4.  Map from heat cells to LED colors
   for (int j = 0; j < count; j++)
   {
-    CRGB color = HeatColor(_heat[j]);
-    int pixelnumber;
-    if (gReverseDirection)
-    {
-      pixelnumber = (count - 1) - j;
-    }
-    else
-    {
-      pixelnumber = j;
-    }
-
-    leds[pixelnumber] = color;
-    leds[count + pixelnumber] = color;
+    Display.pixel(j) = HeatColor(_heat[j]);
   }
 }

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Arduino.h>
-#include <fx.h>
+#include <fx/fx.h>
 
 class Fire2012 : public FX
 {

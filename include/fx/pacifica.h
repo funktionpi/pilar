@@ -1,6 +1,6 @@
 #pragma once
 
-#include <fx.h>
+#include <fx/fx.h>
 
 class Pacifica : public FX
 {

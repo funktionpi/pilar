@@ -1,6 +1,5 @@
 #include <Arduino.h>
 #include "Tasks.h"
-// #include <ESP8266WiFi.h>
 
 void dns_setup();
 void nats_setup();
@@ -18,12 +17,13 @@ void networkCallback();
 
 Scheduler ts;
 
-Task tLed(TASK_IMMEDIATE, TASK_FOREVER, &led_loop, &ts);
+Task tLed(TASK_SECOND / 90, TASK_FOREVER, &led_loop, &ts);
 extern Task tNetwork;
 extern Task tConnect;
 
 void setup()
 {
+  // Serial.begin(115200,SERIAL_8N1,SERIAL_TX_ONLY);
   Serial.begin(115200);
   while (!Serial)
   {
