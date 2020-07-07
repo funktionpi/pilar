@@ -7,3 +7,6 @@
 #define FASTLED_ESP8266_RAW_PIN_ORDER
 #define LED_PIN1 5 // aka D1
 #define LED_PIN2 4 // aka D2
+
+#define DEBUG_ARTNET 0
+#define DEBUG_SACN 0

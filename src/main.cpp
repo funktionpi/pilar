@@ -1,25 +1,16 @@
 #include <Arduino.h>
-#include "Tasks.h"
+#include "task.h"
 
 void dns_setup();
 void nats_setup();
-void muthur_loop();
-void nats_loop();
-void network_init();
+void muthur_setup();
+void network_setup();
 bool led_setup();
-void led_loop();
 void artnet_setup();
-void artnet_loop();
-
-void ledCallback();
-void wifiCallback();
-void networkCallback();
+void ota_setup();
+void sacn_setup();
 
 Scheduler ts;
-
-Task tLed(TASK_SECOND / 90, TASK_FOREVER, &led_loop, &ts);
-extern Task tNetwork;
-extern Task tConnect;
 
 void setup()
 {
@@ -32,12 +23,12 @@ void setup()
   Serial.println();
   Serial.println(F("[MAIN] starting pilar"));
 
-  ts.addTask(tConnect);
-  ts.addTask(tNetwork);
-
+  network_setup();
+  artnet_setup();
+  ota_setup();
+  sacn_setup();
   led_setup();
-  network_init();
-  tLed.enable();
+  dns_setup();
 }
 
 void loop()

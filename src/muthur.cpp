@@ -3,19 +3,15 @@
 #include <ESP8266mDNS.h>
 #include <ArduinoNATS.h>
 
+#include "task.h"
+
 WiFiClient natsWifi;
 NATS* nats;
 char natsHostname[64];
 
-void dns_setup()
+void muthur_setup()
 {
   Serial.println(F("[MDNS] Looking for MUTHUR ... "));
-
-  if (!MDNS.begin("pilar"))
-  {
-    // Start the mDNS responder for esp8266.local
-    Serial.println(F("[MDNS] Error setting up MDNS responder!"));
-  }
 
   auto u32AnswerCount = MDNS.queryService("_nats", "_tcp");
 

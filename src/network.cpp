@@ -1,10 +1,11 @@
 #include <SPI.h>
 #include <ESP8266WiFi.h>
-#include "Tasks.h"
+#include <ArduinoOTA.h>
 
+#include "task.h"
 #include "creds.h"
 
-int status = WL_IDLE_STATUS;
+// int status = WL_IDLE_STATUS;
 auto wifiIdx = 0;
 
 #define CONNECT_TIMEOUT 11   // Seconds
@@ -14,8 +15,8 @@ auto wifiIdx = 0;
 void network_connect();
 void network_loop();
 
-Task tNetwork(TASK_SECOND / 100, TASK_FOREVER, &network_loop);
 Task tConnect(TASK_SECOND, TASK_FOREVER, &network_connect);
+Task tNetwork(TASK_SECOND / 100, TASK_FOREVER, &network_loop);
 
 // create a creds.cpp with the credentials baked into it
 extern const Creds creds[];
@@ -127,7 +128,7 @@ void printStatus(int status)
   Serial.println(names[status]);
 }
 
-String getID()
+String network_uid()
 {
   String id = "";
 #if defined(ESP8266)
@@ -139,12 +140,17 @@ String getID()
   return id;
 }
 
+String network_hostname()
+{
+  return "pilar-" + network_uid();
+}
+
 bool network_connected()
 {
   return WiFi.status() == WL_CONNECTED;
 }
 
-void network_init()
+void network_setup()
 {
   // check for the presence of the shield:
   if (WiFi.status() == WL_NO_SHIELD)
@@ -155,10 +161,13 @@ void network_init()
       ;
   }
 
+  auto hostname = network_hostname();
+
   WiFi.mode(WIFI_STA);
-  WiFi.hostname(String("pilar-") + getID());
+  WiFi.hostname(hostname.c_str());
   WiFi.setAutoReconnect(true);
   WiFi.setAutoConnect(true);
+  Serial.printf("[WIFI] hostname: %s\n", hostname.c_str());
 
   uint8_t mac[WL_MAC_ADDR_LENGTH];
   WiFi.macAddress(mac);
@@ -166,16 +175,34 @@ void network_init()
   printMacAddress(mac);
   yield();
 
+  tConnect.setOnEnable([]() -> bool {
+    Serial.println(F("[WIFI] task connect enabled"));
+    return true;
+  });
+  tConnect.setOnDisable([]() {
+    Serial.println(F("[WIFI] task connect disabled"));
+  });
+
+  tNetwork.setOnEnable([]() -> bool {
+    Serial.println(F("[WIFI] task network enabled"));
+    return true;
+  });
+  tNetwork.setOnDisable([]() {
+    Serial.println(F("[WIFI] task network disabled"));
+  });
+
+  ts.addTask(tConnect);
+  ts.addTask(tNetwork);
   tConnect.enable();
-  Serial.println(F("[WIFI] wifi task enabled"));
 }
 
 void network_connect()
 {
+  auto status = WiFi.status();
   Serial.print(F("[WIFI] Wifi status: "));
   printStatus(status);
 
-  if (WiFi.status() == WL_CONNECTED)
+  if (network_connected())
   {
     Serial.print(F("[WIFI] Connected to "));
     Serial.println(creds[wifiIdx].ssid);
@@ -217,10 +244,9 @@ void network_connect()
 
 void network_loop()
 {
-  if (WiFi.status() != WL_CONNECTED)
+  if (!network_connected())
   {
     tConnect.enable();
     tNetwork.disable();
-    return;
   }
 }

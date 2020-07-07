@@ -1,13 +1,17 @@
 #include "config.h"
 #include <FastLED.h>
 #include <fx/registry.h>
-
 #include <fx/fx.h>
 #include <fx/pacifica.h>
 #include <fx/fire2012.h>
 #include <fx/cylon.h>
 
+#include "task.h"
+
 #include "display.h"
+
+void led_loop();
+Task tLed(TASK_SECOND / 90, TASK_FOREVER, &led_loop, &ts);
 
 void changefx()
 {
@@ -23,7 +27,7 @@ void changefx()
   }
 }
 
-bool led_setup()
+void led_setup()
 {
   Serial.println(F("[LED] setting up FastLED"));
   pinMode(LED_PIN1, OUTPUT);
@@ -49,7 +53,16 @@ bool led_setup()
   changefx();
   FxRegistry.select("fire2012");
 
-  return true;
+  tLed.setOnEnable([]() -> bool {
+    Serial.println(F("[LED] task enabled"));
+    return true;
+  });
+  tLed.setOnDisable([]() {
+    Serial.println(F("[LED] task disabled"));
+  });
+
+  ts.addTask(tLed);
+  tLed.enable();
 }
 
 void led_loop()
