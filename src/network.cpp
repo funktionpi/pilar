@@ -1,6 +1,7 @@
 #include <SPI.h>
 #include <ESP8266WiFi.h>
 #include <ArduinoOTA.h>
+#include <list>
 
 #include "task.h"
 #include "creds.h"
@@ -21,6 +22,8 @@ Task tNetwork(TASK_SECOND / 100, TASK_FOREVER, &network_loop);
 // create a creds.cpp with the credentials baked into it
 extern const Creds creds[];
 extern const int CredsCount;
+
+std::list<Task*> networked_tasks;
 
 void print2Digits(byte thisByte)
 {
@@ -150,6 +153,11 @@ bool network_connected()
   return WiFi.status() == WL_CONNECTED;
 }
 
+void network_addtask(Task& task)
+{
+  networked_tasks.push_back(&task);
+}
+
 void network_setup()
 {
   // check for the presence of the shield:
@@ -176,19 +184,27 @@ void network_setup()
   yield();
 
   tConnect.setOnEnable([]() -> bool {
-    Serial.println(F("[WIFI] task connect enabled"));
+    Serial.println(F("[WIFI] starting connection"));
     return true;
   });
   tConnect.setOnDisable([]() {
-    Serial.println(F("[WIFI] task connect disabled"));
+    Serial.println(F("[WIFI] connection successful"));
   });
 
   tNetwork.setOnEnable([]() -> bool {
-    Serial.println(F("[WIFI] task network enabled"));
+    Serial.println(F("[WIFI] network tasks enabled"));
+    for (auto &&task : networked_tasks)
+    {
+      task->enable();
+    }
     return true;
   });
   tNetwork.setOnDisable([]() {
-    Serial.println(F("[WIFI] task network disabled"));
+    Serial.println(F("[WIFI] network tasks disabled"));
+    for (auto &&task : networked_tasks)
+    {
+      task->disable();
+    }
   });
 
   ts.addTask(tConnect);
@@ -246,7 +262,7 @@ void network_loop()
 {
   if (!network_connected())
   {
-    tConnect.enable();
     tNetwork.disable();
+    tConnect.enable();
   }
 }
