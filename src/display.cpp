@@ -1,7 +1,5 @@
+#include "led.h"
 #include "display.h"
-
-#include <FastLED.h>
-
 #include "config.h"
 
 CDisplay Display;
@@ -18,10 +16,14 @@ static const char *debugOriginStr[] = {
 };
 
 CDisplay::CDisplay() {
-  _leds = new CRGB[LED_COUNT];
+  _target = new CRGB[LED_COUNT];
   _tmp = new CRGB[LED_COUNT];
+
+  memset(_target, sizeof(CRGB[LED_COUNT]), 0);
+  memset(_tmp, sizeof(CRGB[LED_COUNT]), 0);
+
   _mirror = Strip;
-  _origin = Top;
+  _origin = Bottom;
 }
 
 int CDisplay::count() {
@@ -57,8 +59,8 @@ void CDisplay::update() {
   auto cnt = count();
 
   for (size_t i = 0; i < cnt; i++) {
-    auto idx = _origin == Top ? LED_COUNT_PER_STRIP - 1 - i : 1;
-    _leds[idx] = _tmp[i];
+    auto idx = _origin == Top ? LED_COUNT_PER_STRIP - 1 - i : i;
+    _target[idx] = _tmp[i];
   }
 
   // invert content of led array
@@ -69,8 +71,8 @@ void CDisplay::update() {
   // }
 
   if (_mirror == Mirroring::Strip) {
-    for (size_t i = 0; i < cnt; i++) {
-      _leds[LED_COUNT_PER_STRIP + i] = _leds[i];
+    for (size_t i = 0; i < LED_COUNT_PER_STRIP; i++) {
+      _target[LED_COUNT_PER_STRIP + i] = _target[i];
     }
   }
 }

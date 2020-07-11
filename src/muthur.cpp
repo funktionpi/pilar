@@ -1,7 +1,7 @@
 #include <Arduino.h>
-#include <ArduinoNATS.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266mDNS.h>
+#include <ArduinoNATS.h>
 
 #include "task.h"
 

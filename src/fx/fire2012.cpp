@@ -1,4 +1,4 @@
-#include <FastLED.h>
+#include "led.h"
 #include <fx/fire2012.h>
 #include <fx/registry.h>
 

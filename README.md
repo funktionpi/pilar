@@ -41,7 +41,7 @@ Giants glow stick that react to shake.
 
 #### Mirroing (Ch4)
 
-000-127: No mirrorring
-128-255: 
+000-127: Mirror both LED
+128-255: Disable mirroring
 
 ### FX Parameters (Channels 4-11)

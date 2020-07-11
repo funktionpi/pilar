@@ -1,7 +1,6 @@
 #include "fx/cylon.h"
 
-#include <FastLED.h>
-
+#include "led.h"
 #include "display.h"
 #include "fx/registry.h"
 

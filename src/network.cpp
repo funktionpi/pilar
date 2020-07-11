@@ -10,14 +10,15 @@
 // int status = WL_IDLE_STATUS;
 auto wifiIdx = 0;
 
-#define CONNECT_TIMEOUT 11    // Seconds
+#define CONNECT_TIMEOUT 30    // Seconds
 #define CONNECT_OK 0          // Status of successful connection to WiFi
 #define CONNECT_FAILED (-99)  // Status of failed connection to WiFi
 
 void network_connect();
+void network_connect_task();
 void network_loop();
 
-Task tConnect(TASK_SECOND, TASK_FOREVER, &network_connect);
+Task tConnect(TASK_SECOND, TASK_FOREVER, &network_connect_task);
 Task tNetwork(TASK_SECOND / 100, TASK_FOREVER, &network_loop);
 
 // create a creds.cpp with the credentials baked into it
@@ -76,8 +77,7 @@ void listNetworks() {
   int numSsid = WiFi.scanNetworks();
   if (numSsid == -1) {
     Serial.println(F("[WIFI] ouldn't get a WiFi connection"));
-    while (true)
-      ;
+    return;
   }
 
   // print the list of networks seen:
@@ -104,8 +104,8 @@ void listNetworks() {
   Serial.println();
 }
 
-void printStatus(int status) {
-  const char *names[] = {
+void printStatus(wl_status_t status) {
+  static const char *names[] = {
       "WL_IDLE_STATUS",
       "WL_NO_SSID_AVAIL",
       "WL_SCAN_COMPLETED",
@@ -136,7 +136,7 @@ String network_hostname() {
 }
 
 bool network_connected() {
-  return WiFi.status() == WL_CONNECTED;
+  return WiFi.isConnected();
 }
 
 void network_addtask(Task &task) {
@@ -182,6 +182,8 @@ void network_setup() {
     return true;
   });
   tNetwork.setOnDisable([]() {
+    WiFi.disconnect(false);
+    yield();
     Serial.println(F("[WIFI] network tasks disabled"));
     for (auto &&task : networked_tasks) {
       task->disable();
@@ -190,13 +192,36 @@ void network_setup() {
 
   ts.addTask(tConnect);
   ts.addTask(tNetwork);
-  tConnect.enable();
+  tConnect.enableDelayed(250);
+
+  network_connect();
 }
 
 void network_connect() {
+  Serial.print(F("[WIFI] Attempting to connect to SSID: "));
+  Serial.println(creds[wifiIdx].ssid);
+
+  wl_status_t status;
+
+  if (strlen(creds[wifiIdx].pwd)) {
+    // Connect to WPA/WPA2 network.
+    status = WiFi.begin(creds[wifiIdx].ssid, creds[wifiIdx].pwd);
+  } else {
+    status = WiFi.begin(creds[wifiIdx].ssid);
+  }
+  yield();
+  Serial.print(F("[WIFI] Wifi status: "));
+  printStatus(status);
+}
+
+void network_connect_task() {
   auto status = WiFi.status();
   Serial.print(F("[WIFI] Wifi status: "));
   printStatus(status);
+
+  if (status == WL_IDLE_STATUS) {
+    return;
+  }
 
   if (network_connected()) {
     Serial.print(F("[WIFI] Connected to "));
@@ -208,27 +233,16 @@ void network_connect() {
     return;
   }
 
-  if (tConnect.getRunCounter() % 5 == 0) {
-    WiFi.disconnect(true);
-    yield();
-    Serial.print(F("[WIFI] Attempting to connect to SSID: "));
-    Serial.println(creds[wifiIdx].ssid);
-
-    if (strlen(creds[wifiIdx].pwd)) {
-      // Connect to WPA/WPA2 network.
-      status = WiFi.begin(creds[wifiIdx].ssid, creds[wifiIdx].pwd);
-    } else {
-      status = WiFi.begin(creds[wifiIdx].ssid);
-    }
-    yield();
-  }
-
   if (tConnect.getRunCounter() == CONNECT_TIMEOUT) {
-    // tConnect.getInternalStatusRequest()->signal(CONNECT_FAILED); // Signal unsuccessful completion
-    // tConnect.disable();
+    WiFi.disconnect(false);
+    yield();
     Serial.print(F("[WIFI] Connection Timeout"));
     wifiIdx = (wifiIdx + 1) % CredsCount;
     listNetworks();
+  }
+
+  if (tConnect.getRunCounter() % CONNECT_TIMEOUT / 3 == 0) {
+    network_connect();
   }
 }
 

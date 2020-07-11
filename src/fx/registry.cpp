@@ -1,7 +1,8 @@
 #include "fx/registry.h"
 
+#include "led.h"
 #include <Arduino.h>
-#include <FastLED.h>
+
 
 CFxRegistry FxRegistry;
 
@@ -39,6 +40,9 @@ FX *CFxRegistry::select(int id) {
 FX *CFxRegistry::select(const char *name) {
   auto fx = fxmap.find(name);
   if (fx != fxmap.end()) {
+    Serial.print(F("[LED] switching to FX "));
+    Serial.println(fx->second->name());
+
     current = fx->second;
     current->setup();
     return current;

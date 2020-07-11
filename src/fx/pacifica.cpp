@@ -1,4 +1,4 @@
-#include <FastLED.h>
+#include "led.h"
 #include <fx/pacifica.h>
 #include <fx/registry.h>
 

@@ -32,7 +32,7 @@ class CDisplay {
 
   void update();
   CRGB* raw() { return _tmp; }
-  CRGB* target() { return _leds; }
+  CRGB* target() { return _target; }
 
   void printSettings();
 
@@ -41,7 +41,7 @@ class CDisplay {
   Origin _origin;
 
   CRGB* _tmp;
-  CRGB* _leds;
+  CRGB* _target;
 };
 
 extern CDisplay Display;
