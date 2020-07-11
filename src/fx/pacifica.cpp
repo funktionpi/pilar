@@ -1,12 +1,10 @@
-#include <fx/pacifica.h>
 #include <FastLED.h>
+#include <fx/pacifica.h>
 #include <fx/registry.h>
+
 #include "display.h"
 
-Pacifica::Pacifica()
-{
-  FxRegistry.registerFX(this);
-}
+Pacifica::Pacifica() { FxRegistry.registerFX(this); }
 
 //
 //  "Pacifica"
@@ -16,16 +14,15 @@ Pacifica::Pacifica()
 //
 
 // Add one layer of waves into the led array
-void pacifica_one_layer(CRGBPalette16 &p, uint16_t cistart, uint16_t wavescale, uint8_t bri, uint16_t ioff)
-{
+void pacifica_one_layer(CRGBPalette16 &p, uint16_t cistart, uint16_t wavescale,
+                        uint8_t bri, uint16_t ioff) {
   auto count = Display.count();
 
   uint16_t ci = cistart;
   uint16_t waveangle = ioff;
   uint16_t wavescale_half = (wavescale / 2) + 20;
 
-  for (uint16_t i = 0; i < count; i++)
-  {
+  for (uint16_t i = 0; i < count; i++) {
     waveangle += 250;
     uint16_t s16 = sin16(waveangle) + 32768;
     uint16_t cs = scale16(s16, wavescale_half) + wavescale_half;
@@ -38,22 +35,20 @@ void pacifica_one_layer(CRGBPalette16 &p, uint16_t cistart, uint16_t wavescale, 
   }
 }
 
-// Add extra 'white' to areas where the four layers of light have lined up brightly
-void pacifica_add_whitecaps()
-{
+// Add extra 'white' to areas where the four layers of light have lined up
+// brightly
+void pacifica_add_whitecaps() {
   auto count = Display.count();
 
   uint8_t basethreshold = beatsin8(9, 55, 65);
   uint8_t wave = beat8(7);
 
-  for (uint16_t i = 0; i < count; i++)
-  {
+  for (uint16_t i = 0; i < count; i++) {
     uint8_t threshold = scale8(sin8(wave), 20) + basethreshold;
     wave += 7;
     uint8_t l = Display.pixel(i).getAverageLight();
 
-    if (l > threshold)
-    {
+    if (l > threshold) {
       uint8_t overage = l - threshold;
       uint8_t overage2 = qadd8(overage, overage);
 
@@ -63,12 +58,10 @@ void pacifica_add_whitecaps()
 }
 
 // Deepen the blues and greens
-void pacifica_deepen_colors()
-{
+void pacifica_deepen_colors() {
   auto count = Display.count();
 
-  for (uint16_t i = 0; i < count; i++)
-  {
+  for (uint16_t i = 0; i < count; i++) {
     Display.pixel(i).blue = scale8(Display.pixel(i).blue, 145);
     Display.pixel(i).green = scale8(Display.pixel(i).green, 200);
     Display.pixel(i) |= CRGB(2, 5, 7);
@@ -94,24 +87,27 @@ void pacifica_deepen_colors()
 // over the led array to 'deepen' (dim) the blues and greens.
 //
 // The speed and scale and motion each layer varies slowly within independent
-// hand-chosen ranges, which is why the code has a lot of low-speed 'beatsin8' functions
-// with a lot of oddly specific numeric ranges.
+// hand-chosen ranges, which is why the code has a lot of low-speed 'beatsin8'
+// functions with a lot of oddly specific numeric ranges.
 //
-// These three custom blue-green color palettes were inspired by the colors found in
-// the waters off the southern coast of California, https://goo.gl/maps/QQgd97jjHesHZVxQ7
+// These three custom blue-green color palettes were inspired by the colors
+// found in the waters off the southern coast of California,
+// https://goo.gl/maps/QQgd97jjHesHZVxQ7
 //
-CRGBPalette16 pacifica_palette_1 =
-    {0x000507, 0x000409, 0x00030B, 0x00030D, 0x000210, 0x000212, 0x000114, 0x000117,
-     0x000019, 0x00001C, 0x000026, 0x000031, 0x00003B, 0x000046, 0x14554B, 0x28AA50};
-CRGBPalette16 pacifica_palette_2 =
-    {0x000507, 0x000409, 0x00030B, 0x00030D, 0x000210, 0x000212, 0x000114, 0x000117,
-     0x000019, 0x00001C, 0x000026, 0x000031, 0x00003B, 0x000046, 0x0C5F52, 0x19BE5F};
-CRGBPalette16 pacifica_palette_3 =
-    {0x000208, 0x00030E, 0x000514, 0x00061A, 0x000820, 0x000927, 0x000B2D, 0x000C33,
-     0x000E39, 0x001040, 0x001450, 0x001860, 0x001C70, 0x002080, 0x1040BF, 0x2060FF};
+CRGBPalette16 pacifica_palette_1 = {0x000507, 0x000409, 0x00030B, 0x00030D,
+                                    0x000210, 0x000212, 0x000114, 0x000117,
+                                    0x000019, 0x00001C, 0x000026, 0x000031,
+                                    0x00003B, 0x000046, 0x14554B, 0x28AA50};
+CRGBPalette16 pacifica_palette_2 = {0x000507, 0x000409, 0x00030B, 0x00030D,
+                                    0x000210, 0x000212, 0x000114, 0x000117,
+                                    0x000019, 0x00001C, 0x000026, 0x000031,
+                                    0x00003B, 0x000046, 0x0C5F52, 0x19BE5F};
+CRGBPalette16 pacifica_palette_3 = {0x000208, 0x00030E, 0x000514, 0x00061A,
+                                    0x000820, 0x000927, 0x000B2D, 0x000C33,
+                                    0x000E39, 0x001040, 0x001450, 0x001860,
+                                    0x001C70, 0x002080, 0x1040BF, 0x2060FF};
 
-void Pacifica::loop()
-{
+void Pacifica::loop() {
   // Increment the four "color index start" counters, one for each wave layer.
   // Each is incremented at a different speed, and the speeds vary over time.
   static uint16_t sCIStart1, sCIStart2, sCIStart3, sCIStart4;
@@ -132,11 +128,18 @@ void Pacifica::loop()
   // Clear out the LED array to a dim background blue-green
   fill_solid(Display.raw(), Display.count(), CRGB(2, 6, 10));
 
-  // Render each of four layers, with different scales and speeds, that vary over time
-  pacifica_one_layer(pacifica_palette_1, sCIStart1, beatsin16(3, 11 * 256, 14 * 256), beatsin8(10, 70, 130), 0 - beat16(301));
-  pacifica_one_layer(pacifica_palette_2, sCIStart2, beatsin16(4, 6 * 256, 9 * 256), beatsin8(17, 40, 80), beat16(401));
-  pacifica_one_layer(pacifica_palette_3, sCIStart3, 6 * 256, beatsin8(9, 10, 38), 0 - beat16(503));
-  pacifica_one_layer(pacifica_palette_3, sCIStart4, 5 * 256, beatsin8(8, 10, 28), beat16(601));
+  // Render each of four layers, with different scales and speeds, that vary
+  // over time
+  pacifica_one_layer(pacifica_palette_1, sCIStart1,
+                     beatsin16(3, 11 * 256, 14 * 256), beatsin8(10, 70, 130),
+                     0 - beat16(301));
+  pacifica_one_layer(pacifica_palette_2, sCIStart2,
+                     beatsin16(4, 6 * 256, 9 * 256), beatsin8(17, 40, 80),
+                     beat16(401));
+  pacifica_one_layer(pacifica_palette_3, sCIStart3, 6 * 256,
+                     beatsin8(9, 10, 38), 0 - beat16(503));
+  pacifica_one_layer(pacifica_palette_3, sCIStart4, 5 * 256,
+                     beatsin8(8, 10, 28), beat16(601));
 
   // Add brighter 'whitecaps' where the waves lines up more
   pacifica_add_whitecaps();

@@ -2,22 +2,19 @@
 
 class CRGB;
 
-enum Origin
-{
-  Top,    // led zero is near the power supply
+enum Origin {
+  Top,  // led zero is near the power supply
   Bottom,
-  Center, // if centered, this will automatically mirror based on center
+  Center,  // if centered, this will automatically mirror based on center
 };
 
-enum Mirroring
-{
-  None  = 0x0,
+enum Mirroring {
+  None = 0x0,
   Strip = 0x1,
 };
 
-class CDisplay
-{
-public:
+class CDisplay {
+ public:
   CDisplay();
 
   // number of LEDs which can be addressed
@@ -39,9 +36,9 @@ public:
 
   void printSettings();
 
-private:
-  Mirroring _mirror;    // set leds on both side to the same color
-  Origin    _origin;
+ private:
+  Mirroring _mirror;  // set leds on both side to the same color
+  Origin _origin;
 
   CRGB* _tmp;
   CRGB* _leds;

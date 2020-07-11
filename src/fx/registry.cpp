@@ -1,6 +1,7 @@
+#include "fx/registry.h"
+
 #include <Arduino.h>
 #include <FastLED.h>
-#include "fx/registry.h"
 
 CFxRegistry FxRegistry;
 
@@ -8,13 +9,11 @@ CFxRegistry FxRegistry;
 
 using std::string;
 
-CFxRegistry::CFxRegistry()
-{
+CFxRegistry::CFxRegistry() {
   count = 0;
 }
 
-void CFxRegistry::registerFX(FX *fx)
-{
+void CFxRegistry::registerFX(FX *fx) {
   // Serial.print(F("[FX] registering "));
   // Serial.print(fx->name());
   // Serial.println();
@@ -24,15 +23,12 @@ void CFxRegistry::registerFX(FX *fx)
   count++;
 }
 
-FX *CFxRegistry::random()
-{
+FX *CFxRegistry::random() {
   return select(random8(count));
 }
 
-FX *CFxRegistry::select(int id)
-{
-  if (id >= count)
-  {
+FX *CFxRegistry::select(int id) {
+  if (id >= count) {
     return nullptr;
   }
   current = fxes[id];
@@ -40,41 +36,31 @@ FX *CFxRegistry::select(int id)
   return current;
 }
 
-FX *CFxRegistry::select(const char *name)
-{
+FX *CFxRegistry::select(const char *name) {
   auto fx = fxmap.find(name);
-  if (fx != fxmap.end())
-  {
+  if (fx != fxmap.end()) {
     current = fx->second;
     current->setup();
     return current;
-  }
-  else
-  {
+  } else {
     return nullptr;
   }
 }
 
-void CFxRegistry::loop()
-{
-  if (current)
-  {
-    if (millis() - lastFxTick >= current->nextDelay())
-    {
+void CFxRegistry::loop() {
+  if (current) {
+    if (millis() - lastFxTick >= current->nextDelay()) {
       current->loop();
       lastFxTick = millis();
     }
   }
 }
 
-void CFxRegistry::printRegistered()
-{
+void CFxRegistry::printRegistered() {
   Serial.println(F("[FX] List of registered FXs:"));
   int i = 0;
-  for (auto it : fxes)
-  {
-    if (i >= count)
-    {
+  for (auto it : fxes) {
+    if (i >= count) {
       return;
     }
     Serial.print(F("  "));

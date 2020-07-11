@@ -1,17 +1,18 @@
-#include <SPI.h>
-#include <ESP8266WiFi.h>
 #include <ArduinoOTA.h>
+#include <ESP8266WiFi.h>
+#include <SPI.h>
+
 #include <list>
 
-#include "task.h"
 #include "creds.h"
+#include "task.h"
 
 // int status = WL_IDLE_STATUS;
 auto wifiIdx = 0;
 
-#define CONNECT_TIMEOUT 11   // Seconds
-#define CONNECT_OK 0         // Status of successful connection to WiFi
-#define CONNECT_FAILED (-99) // Status of failed connection to WiFi
+#define CONNECT_TIMEOUT 11    // Seconds
+#define CONNECT_OK 0          // Status of successful connection to WiFi
+#define CONNECT_FAILED (-99)  // Status of failed connection to WiFi
 
 void network_connect();
 void network_loop();
@@ -23,39 +24,31 @@ Task tNetwork(TASK_SECOND / 100, TASK_FOREVER, &network_loop);
 extern const Creds creds[];
 extern const int CredsCount;
 
-std::list<Task*> networked_tasks;
+std::list<Task *> networked_tasks;
 
-void print2Digits(byte thisByte)
-{
-  if (thisByte < 0xF)
-  {
+void print2Digits(byte thisByte) {
+  if (thisByte < 0xF) {
     Serial.print("0");
   }
   Serial.print(thisByte, HEX);
 }
 
-void printMacAddress(byte mac[])
-{
-  for (int i = 5; i >= 0; i--)
-  {
-    if (mac[i] < 16)
-    {
+void printMacAddress(byte mac[]) {
+  for (int i = 5; i >= 0; i--) {
+    if (mac[i] < 16) {
       Serial.print("0");
     }
     Serial.print(mac[i], HEX);
-    if (i > 0)
-    {
+    if (i > 0) {
       Serial.print(":");
     }
   }
   Serial.println();
 }
 
-void printEncryptionType(int thisType)
-{
+void printEncryptionType(int thisType) {
   // read the encryption type and print out the name:
-  switch (thisType)
-  {
+  switch (thisType) {
   case ENC_TYPE_WEP:
     Serial.print(F("WEP"));
     break;
@@ -77,13 +70,11 @@ void printEncryptionType(int thisType)
   }
 }
 
-void listNetworks()
-{
+void listNetworks() {
   // scan for nearby networks:
   Serial.println(F("[WIFI] ** Scan Networks **"));
   int numSsid = WiFi.scanNetworks();
-  if (numSsid == -1)
-  {
+  if (numSsid == -1) {
     Serial.println(F("[WIFI] ouldn't get a WiFi connection"));
     while (true)
       ;
@@ -94,8 +85,7 @@ void listNetworks()
   Serial.println(numSsid);
 
   // print the network number and name for each network found:
-  for (int thisNet = 0; thisNet < numSsid; thisNet++)
-  {
+  for (int thisNet = 0; thisNet < numSsid; thisNet++) {
     Serial.print(thisNet + 1);
     Serial.print(") ");
     Serial.print("Signal: ");
@@ -114,8 +104,7 @@ void listNetworks()
   Serial.println();
 }
 
-void printStatus(int status)
-{
+void printStatus(int status) {
   const char *names[] = {
       "WL_IDLE_STATUS",
       "WL_NO_SSID_AVAIL",
@@ -131,8 +120,7 @@ void printStatus(int status)
   Serial.println(names[status]);
 }
 
-String network_uid()
-{
+String network_uid() {
   String id = "";
 #if defined(ESP8266)
   id = String(ESP.getChipId());
@@ -143,26 +131,21 @@ String network_uid()
   return id;
 }
 
-String network_hostname()
-{
+String network_hostname() {
   return "pilar-" + network_uid();
 }
 
-bool network_connected()
-{
+bool network_connected() {
   return WiFi.status() == WL_CONNECTED;
 }
 
-void network_addtask(Task& task)
-{
+void network_addtask(Task &task) {
   networked_tasks.push_back(&task);
 }
 
-void network_setup()
-{
+void network_setup() {
   // check for the presence of the shield:
-  if (WiFi.status() == WL_NO_SHIELD)
-  {
+  if (WiFi.status() == WL_NO_SHIELD) {
     Serial.println(F("[WIFI] WiFi module not present"));
     // don't continue:
     while (true)
@@ -193,16 +176,14 @@ void network_setup()
 
   tNetwork.setOnEnable([]() -> bool {
     Serial.println(F("[WIFI] network tasks enabled"));
-    for (auto &&task : networked_tasks)
-    {
+    for (auto &&task : networked_tasks) {
       task->enable();
     }
     return true;
   });
   tNetwork.setOnDisable([]() {
     Serial.println(F("[WIFI] network tasks disabled"));
-    for (auto &&task : networked_tasks)
-    {
+    for (auto &&task : networked_tasks) {
       task->disable();
     }
   });
@@ -212,14 +193,12 @@ void network_setup()
   tConnect.enable();
 }
 
-void network_connect()
-{
+void network_connect() {
   auto status = WiFi.status();
   Serial.print(F("[WIFI] Wifi status: "));
   printStatus(status);
 
-  if (network_connected())
-  {
+  if (network_connected()) {
     Serial.print(F("[WIFI] Connected to "));
     Serial.println(creds[wifiIdx].ssid);
     Serial.print(F("[WIFI] IP address is "));
@@ -229,27 +208,22 @@ void network_connect()
     return;
   }
 
-  if (tConnect.getRunCounter() % 5 == 0)
-  {
+  if (tConnect.getRunCounter() % 5 == 0) {
     WiFi.disconnect(true);
     yield();
     Serial.print(F("[WIFI] Attempting to connect to SSID: "));
     Serial.println(creds[wifiIdx].ssid);
 
-    if (strlen(creds[wifiIdx].pwd))
-    {
+    if (strlen(creds[wifiIdx].pwd)) {
       // Connect to WPA/WPA2 network.
       status = WiFi.begin(creds[wifiIdx].ssid, creds[wifiIdx].pwd);
-    }
-    else
-    {
+    } else {
       status = WiFi.begin(creds[wifiIdx].ssid);
     }
     yield();
   }
 
-  if (tConnect.getRunCounter() == CONNECT_TIMEOUT)
-  {
+  if (tConnect.getRunCounter() == CONNECT_TIMEOUT) {
     // tConnect.getInternalStatusRequest()->signal(CONNECT_FAILED); // Signal unsuccessful completion
     // tConnect.disable();
     Serial.print(F("[WIFI] Connection Timeout"));
@@ -258,10 +232,8 @@ void network_connect()
   }
 }
 
-void network_loop()
-{
-  if (!network_connected())
-  {
+void network_loop() {
+  if (!network_connected()) {
     tNetwork.disable();
     tConnect.enable();
   }

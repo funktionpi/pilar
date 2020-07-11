@@ -1,4 +1,5 @@
 #include <Arduino.h>
+
 #include "task.h"
 
 void dns_setup();
@@ -12,13 +13,12 @@ void sacn_setup();
 
 Scheduler ts;
 
-void setup()
-{
+void setup() {
   // Serial.begin(115200,SERIAL_8N1,SERIAL_TX_ONLY);
   Serial.begin(115200);
-  while (!Serial)
-  {
-    yield(); // wait for serial port to connect. Needed for native USB port only
+  while (!Serial) {
+    // wait for serial port to connect. Needed for native USB port only
+    yield();
   }
   Serial.println();
   Serial.println(F("[MAIN] starting pilar"));
@@ -31,7 +31,4 @@ void setup()
   dns_setup();
 }
 
-void loop()
-{
-  ts.execute();
-}
+void loop() { ts.execute(); }

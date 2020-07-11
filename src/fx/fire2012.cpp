@@ -1,6 +1,7 @@
-#include <fx/fire2012.h>
 #include <FastLED.h>
+#include <fx/fire2012.h>
 #include <fx/registry.h>
+
 #include "display.h"
 
 // Fire2012 by Mark Kriegsman, July 2012
@@ -21,8 +22,8 @@
 // This simulation scales it self a bit depending on NUM_LEDS; it should look
 // "OK" on anywhere from 20 to 100 LEDs without too much tweaking.
 //
-// I recommend running this simulation at anywhere from 30-100 frames per second,
-// meaning an interframe delay of about 10-35 milliseconds.
+// I recommend running this simulation at anywhere from 30-100 frames per
+// second, meaning an interframe delay of about 10-35 milliseconds.
 //
 // Looks best on a high-density LED setup (60+ pixels/meter).
 //
@@ -41,49 +42,37 @@
 // Default 120, suggested range 50-200.
 #define SPARKING 140
 
-Fire2012::Fire2012()
-{
+Fire2012::Fire2012() {
   FxRegistry.registerFX(this);
   _heat = new byte[Display.maxCount()];
 }
 
-Fire2012::~Fire2012()
-{
-  delete _heat;
-}
+Fire2012::~Fire2012() { delete _heat; }
 
-void Fire2012::setup()
-{
-  random16_add_entropy(millis());
-}
+void Fire2012::setup() { random16_add_entropy(millis()); }
 
-void Fire2012::loop()
-{
+void Fire2012::loop() {
   auto count = Display.count();
   // Add entropy to random number generator; we use a lot of it.
 
   // Step 1.  Cool down every cell a little
-  for (int i = 0; i < count; i++)
-  {
+  for (int i = 0; i < count; i++) {
     _heat[i] = qsub8(_heat[i], random8(0, ((COOLING * 10) / count) + 2));
   }
 
   // Step 2.  Heat from each cell drifts 'up' and diffuses a little
-  for (int k = count - 1; k >= 2; k--)
-  {
+  for (int k = count - 1; k >= 2; k--) {
     _heat[k] = (_heat[k - 1] + _heat[k - 2] + _heat[k - 2]) / 3;
   }
 
   // Step 3.  Randomly ignite new 'sparks' of heat near the bottom
-  if (random8() < SPARKING)
-  {
+  if (random8() < SPARKING) {
     int y = random8(7);
     _heat[y] = qadd8(_heat[y], random8(160, 255));
   }
 
   // Step 4.  Map from heat cells to LED colors
-  for (int j = 0; j < count; j++)
-  {
+  for (int j = 0; j < count; j++) {
     Display.pixel(j) = HeatColor(_heat[j]);
   }
 }
