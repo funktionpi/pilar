@@ -1,4 +1,4 @@
 #pragma once
 
-#define FASTLED_ESP8266_RAW_PIN_ORDER
+#include "config.h"
 #include <FastLED.h>

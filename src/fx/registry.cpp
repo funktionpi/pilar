@@ -6,7 +6,7 @@
 
 CFxRegistry FxRegistry;
 
-#pragma GCC diagnostic ignored "-Wsign-compare"
+// #pragma GCC diagnostic ignored "-Wsign-compare"
 
 using std::string;
 

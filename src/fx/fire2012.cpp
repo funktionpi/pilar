@@ -42,6 +42,8 @@
 // Default 120, suggested range 50-200.
 #define SPARKING 140
 
+// const char* Fire2012::Name =  "fire2012";
+
 Fire2012::Fire2012() {
   FxRegistry.registerFX(this);
   _heat = new byte[Display.maxCount()];

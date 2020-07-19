@@ -9,5 +9,6 @@ public:
   int nextDelay() { return 20; }
   void loop();
 
-  const char* name() { return "pacifica"; }
+  const char* name() { return Name; }
+  static constexpr const char* Name = "pacifica";
 };

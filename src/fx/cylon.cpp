@@ -10,7 +10,7 @@ Cylon::~Cylon() {}
 
 void Cylon::fadeall() {
   for (int i = 0; i < Display.count(); i++) {
-    Display.pixel(i).nscale8(235);
+    Display[current].nscale8(225);
   }
 }
 
@@ -25,20 +25,16 @@ void Cylon::loop() {
 
   if (goingLeft) {
     fadeall();
-    Display.pixel(current) = CHSV(hue++, 255, 255);
+    Display[current] = CHSV(hue++, 255, 255);
 
-    if (current == count - 1) {
+    if (++current == count - 1) {
       goingLeft = false;
-    } else {
-      current++;
     }
   } else {
     fadeall();
-    Display.pixel(current) = CHSV(hue++, 255, 255);
+    Display[current] = CHSV(hue++, 255, 255);
 
-    current--;
-
-    if (current == 0) {
+    if (--current == 0) {
       goingLeft = true;
     }
   }

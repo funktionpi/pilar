@@ -52,18 +52,16 @@ void led_setup() {
   });
   tLed.setOnDisable([]() { Serial.println(F("[LED] task disabled")); });
 
+  // change to random fx
+  // changefx();
+  FxRegistry.select("cylon");
+
   ts.addTask(tLed);
   tLed.enable();
 }
 
 void led_loop() {
-  if (tLed.isFirstIteration()) {
-    // changefx();
-    FxRegistry.select("fire2012");
-  }
-
   EVERY_N_MINUTES(1)
-  // EVERY_N_SECONDS(10)
   {
     changefx();
   }

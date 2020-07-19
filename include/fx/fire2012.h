@@ -12,7 +12,8 @@ class Fire2012 : public FX
     void setup();
     void loop();
 
-    const char* name() { return "fire2012"; }
+    const char* name() { return Name; }
+    static constexpr const char* Name = "fire2012";
 
   private:
     byte* _heat;

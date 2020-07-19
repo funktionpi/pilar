@@ -57,20 +57,22 @@ void sacn_loop() {
         Display.setMirror(Mirroring::None);
       }
 
-      if (channelCount >= CHANNEL_BRIGHTNESS) { {
-        if (packet.property_values[CHANNEL_ORIGIN] < 127) {
-          Display.setOrigin(Origin::Bottom);
-        } else {
-          Display.setOrigin(Origin::Top);
-        }
-      }
-
       if (channelCount >= CHANNEL_BRIGHTNESS) {
-        auto bright = packet.property_values[CHANNEL_BRIGHTNESS];
-        if (bright != FastLED.getBrightness()) {
-          Serial.print(F("[SACN] updating brigthness to "));
-          Serial.println(bright);
-          FastLED.setBrightness(bright);
+        {
+          if (packet.property_values[CHANNEL_ORIGIN] < 127) {
+            Display.setOrigin(Origin::Bottom);
+          } else {
+            Display.setOrigin(Origin::Top);
+          }
+        }
+
+        if (channelCount >= CHANNEL_BRIGHTNESS) {
+          auto bright = packet.property_values[CHANNEL_BRIGHTNESS];
+          if (bright != FastLED.getBrightness()) {
+            Serial.print(F("[SACN] updating brigthness to "));
+            Serial.println(bright);
+            FastLED.setBrightness(bright);
+          }
         }
       }
     }

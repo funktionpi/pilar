@@ -10,6 +10,7 @@ bool led_setup();
 void artnet_setup();
 void ota_setup();
 void sacn_setup();
+void sensor_setup();
 
 Scheduler ts;
 
@@ -23,6 +24,7 @@ void setup() {
   Serial.println();
   Serial.println(F("[MAIN] starting pilar"));
 
+  sensor_setup();
   network_setup();
   artnet_setup();
   ota_setup();

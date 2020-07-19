@@ -23,6 +23,9 @@ class CDisplay {
   void setAllColor(CRGB& color);
 
   CRGB& pixel(int index);
+  CRGB& operator[] (int index) {
+    return pixel(index);
+  }
 
   Mirroring mirror() { return _mirror; }
   void setMirror(Mirroring mirror) { _mirror = mirror; }

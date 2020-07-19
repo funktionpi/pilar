@@ -13,7 +13,8 @@ class Cylon : public FX
 
     int nextDelay() { return 10; }
 
-    const char* name() { return "cylon"; }
+    const char* name() { return Name; }
+    static constexpr const char* Name = "cylon";
 
   private:
     void fadeall();
